@@ -24,10 +24,12 @@ public class ScoreManager : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         // Object
-        Pickup pickup = other.gameObject.GetComponent<Pickup>();
+        Pickup pickup = other.GetComponent<Pickup>();
         pickup.GetPickedUp();
-        Destroy(pickup.gameObject);
         spawner.spawnCount--;
+
+        // Audio
+        pickup.GetComponent<AudioSource>().Play();
 
         // Score
         score++;

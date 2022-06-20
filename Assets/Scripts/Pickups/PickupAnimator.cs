@@ -13,6 +13,10 @@ public class PickupAnimator : MonoBehaviour
 	[SerializeField]
 	private ParticleSystem collectEffect;
 
+	[Header("Sounds")]
+	[SerializeField]
+	private AudioClip pickupSound;
+
 	/// <summary>
 	/// Play the idle animation and effects.
 	/// </summary>
@@ -28,10 +32,10 @@ public class PickupAnimator : MonoBehaviour
 	/// </summary>
 	public void PlayCollected()
 	{
-		enabled = false;
 		modelRenderer.enabled = false;
 		idleEffect.Stop();
 		collectEffect.Play();
+		GetComponent<AudioSource>().clip = pickupSound;
 	}
 
 	private void Update()
@@ -39,5 +43,10 @@ public class PickupAnimator : MonoBehaviour
 		var modelTransform = modelRenderer.transform;
 		modelTransform.localPosition = new Vector3(0f, Mathf.Lerp(0.35f, 0.55f, (Mathf.Sin(Time.time * 3f) + 1f) * 0.5f), 0f);
 		modelTransform.localEulerAngles = new Vector3(0f, Time.time * 180f % 360f, 0f);
+
+		if (!collectEffect.gameObject.activeSelf && !idleEffect.gameObject.activeSelf)
+        {
+			Destroy(gameObject);
+        }
 	}
 }
