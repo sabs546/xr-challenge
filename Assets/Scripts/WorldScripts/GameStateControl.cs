@@ -8,6 +8,12 @@ public class GameStateControl : MonoBehaviour
     public GameState gameState { get; private set; }
 
     [SerializeField]
+    private GameObject cam;
+    private Vector3 menuCamPos;
+    private Quaternion menuCamRot;
+
+    [Header("State Change Objects")]
+    [SerializeField]
     private GameObject mainMenu;
     [SerializeField]
     private GameObject inGameUI;
@@ -20,10 +26,17 @@ public class GameStateControl : MonoBehaviour
     [SerializeField]
     private GameObject finishZone;
 
+    private void Awake()
+    {
+        menuCamPos = cam.transform.position;
+        menuCamRot = cam.transform.rotation;
+        SetGameState(GameState.Menu);
+    }
+
     // Start is called before the first frame update
     void Start()
     {
-        gameState = GameState.Menu;
+        
     }
 
     // Update is called once per frame
@@ -37,29 +50,62 @@ public class GameStateControl : MonoBehaviour
         switch (state)
         {
             case GameState.Menu:
+                gameState = GameState.Menu;
                 mainMenu.SetActive(true);
                 inGameUI.SetActive(false);
                 gameOver.SetActive(false);
-                player.SetActive(false);
+                player.GetComponent<Controller>().enabled = false;
                 spawner.SetActive(false);
                 finishZone.SetActive(false);
+
+                // Bring the camera back to the menu position
+                cam.transform.position = menuCamPos;
+                cam.transform.rotation = menuCamRot;
+                cam.GetComponent<CameraControl>().enabled = false;
+
+                // Cursor settings
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+
+                player.GetComponent<ScoreManager>().ResetScore();
                 break;
+
             case GameState.Playing:
                 gameState = GameState.Playing;
                 mainMenu.SetActive(false);
                 inGameUI.SetActive(true);
                 gameOver.SetActive(false);
-                player.SetActive(true);
+                player.GetComponent<Controller>().enabled = true;
                 spawner.SetActive(true);
                 finishZone.SetActive(true);
+
+                // Hook the camera to the player
+                cam.transform.position = player.transform.position;
+                cam.transform.rotation = player.transform.rotation;
+                cam.GetComponent<CameraControl>().enabled = true;
+
+                // Cursor settings
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
                 break;
+
             case GameState.GameOver:
+                gameState = GameState.GameOver;
                 mainMenu.SetActive(false);
                 inGameUI.SetActive(false);
                 gameOver.SetActive(true);
-                player.SetActive(false);
+                player.GetComponent<Controller>().enabled = false;
                 spawner.SetActive(false);
                 finishZone.SetActive(false);
+
+                // Bring the camera back to the menu position
+                cam.transform.position = menuCamPos;
+                cam.transform.rotation = menuCamRot;
+                cam.GetComponent<CameraControl>().enabled = false;
+
+                // Cursor settings
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
                 break;
         }
     }

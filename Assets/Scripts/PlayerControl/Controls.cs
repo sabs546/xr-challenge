@@ -8,4 +8,6 @@ public class Controls : MonoBehaviour
     public KeyCode Down;
     public KeyCode Left;
     public KeyCode Right;
+    public KeyCode Sprint;
+    public KeyCode Exit;
 }

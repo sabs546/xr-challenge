@@ -49,4 +49,9 @@ public class ScoreManager : MonoBehaviour
             gameStateControl.SetGameState(GameStateControl.GameState.GameOver);
         }
     }
+
+    public void ResetScore()
+    {
+        score = 0;
+    }
 }

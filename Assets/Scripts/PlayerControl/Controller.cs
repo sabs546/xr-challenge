@@ -4,39 +4,147 @@ using UnityEngine;
 
 public class Controller : MonoBehaviour
 {
-    public float speed;
-    private Controls controls;
-    private Vector3 pos;
+    [Header("Movement")]
+    public float walkSpeed;
+    public float sprintSpeed;
+    public float currentSpeed { get; private set; }
+    private Vector2 directionalInput;
+    private Vector3 moveDirection;
+    [SerializeField]
+    private float groundDrag;
+    [SerializeField]
+    private bool grounded;
+    public LayerMask Ground;
 
-    public float xLimit;
-    public float zLimit;
+    [SerializeField]
+    private Transform orientation;
+    private Rigidbody rb;
+    private Controls controls;
+
+    public float bouncePower { get; private set; }
+    public float fallSpeed { get; private set; }
+    [SerializeField]
+    private float walkBouncePower;
+    [SerializeField]
+    private float sprintBouncePower;
+    [SerializeField]
+    private float walkFallSpeed;
+    [SerializeField]
+    private float sprintFallSpeed;
+
+    [Header("World Limits")]
+    public float xLimit; // X Border limits for the map
+    public float zLimit; // Z Border limits for the map
+
+    [Header("Audio")]
+    [SerializeField]
+    private AudioClip[] skids;
+    public AudioSource audioSource;
+    public bool moving;
 
     // Start is called before the first frame update
     void Start()
     {
-        pos = transform.position;
         controls = GetComponent<Controls>();
+        rb = GetComponent<Rigidbody>();
+        rb.freezeRotation = true;
+        currentSpeed = 0.0f;
+
+        audioSource = GetComponent<AudioSource>();
+        moving = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKey(controls.Up) && pos.x < xLimit)
+        PlayerInput();
+        SpeedLimit();
+
+        if (grounded) rb.drag = groundDrag;
+        else rb.drag = 0.0f;
+
+        if (Input.GetKeyDown(controls.Exit))
         {
-            pos = new Vector3(pos.x + (speed * Time.deltaTime), pos.y, pos.z);
+            UnityEditor.EditorApplication.isPlaying = false;
+            Application.Quit();
         }
-        if (Input.GetKey(controls.Down) && pos.x > -xLimit)
+    }
+
+    private void FixedUpdate()
+    {
+        Movement();
+    }
+
+    private void PlayerInput()
+    {
+        directionalInput.x = Input.GetAxisRaw("Vertical");
+        directionalInput.y = Input.GetAxisRaw("Horizontal");
+
+        if (directionalInput.x == 0.0f && directionalInput.y == 0.0f)
         {
-            pos = new Vector3(pos.x - (speed * Time.deltaTime), pos.y, pos.z);
+            if (currentSpeed > walkSpeed && moving)
+            {
+                audioSource.clip = skids[Random.Range(0, skids.Length)];
+                audioSource.Play();
+            }
+            moving = false;
+            if (currentSpeed > 0.0f)
+            {
+                currentSpeed -= groundDrag * Time.deltaTime;
+                if (currentSpeed < 0.0f)
+                {
+                    currentSpeed = 0.0f;
+                }
+            }
         }
-        if (Input.GetKey(controls.Left) && pos.z < zLimit)
+        else
         {
-            pos = new Vector3(pos.x, pos.y, pos.z + (speed * Time.deltaTime));
+            moving = true;
+            if (Input.GetKey(controls.Sprint))
+            {
+                currentSpeed += sprintSpeed * Time.deltaTime;
+                if (currentSpeed > sprintSpeed)
+                {
+                    currentSpeed = sprintSpeed;
+                }
+                bouncePower = sprintBouncePower;
+                fallSpeed = sprintFallSpeed;
+            }
+            else
+            {
+                if (currentSpeed > walkSpeed)
+                {
+                    currentSpeed -= walkSpeed * Time.deltaTime;
+                }
+                else
+                {
+                    currentSpeed = walkSpeed;
+                }
+                bouncePower = walkBouncePower;
+                fallSpeed = walkFallSpeed;
+            }
         }
-        if (Input.GetKey(controls.Right) && pos.z > -zLimit)
+    }
+
+    private void Movement()
+    {
+        moveDirection = orientation.forward * directionalInput.x + orientation.right * directionalInput.y;
+        rb.AddForce(moveDirection.normalized * currentSpeed * 10.0f, ForceMode.Force);
+    }
+
+    private void SpeedLimit()
+    {
+        Vector3 flatVelocity = new Vector3(rb.velocity.x, 0.0f, rb.velocity.z);
+
+        if (flatVelocity.magnitude > currentSpeed)
         {
-            pos = new Vector3(pos.x, pos.y, pos.z - (speed * Time.deltaTime));
+            Vector3 limitedVelocity = flatVelocity.normalized * currentSpeed;
+            rb.velocity = new Vector3(limitedVelocity.x, rb.velocity.y, limitedVelocity.z);
         }
-        transform.position = pos;
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.layer == Ground) grounded = true;
     }
 }
