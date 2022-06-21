@@ -7,7 +7,11 @@ public class ScoreManager : MonoBehaviour
 {
     public TextMeshProUGUI GUIText; // Score text
     public PickupSpawner spawner;   // To lower the spawn count
-    private int score;
+    public int score { get; private set; }
+    [SerializeField]
+    private FinishZone finishZone;
+    [SerializeField]
+    private GameStateControl gameStateControl;
 
     // Start is called before the first frame update
     void Start()
@@ -18,21 +22,31 @@ public class ScoreManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        if (score >= spawner.pickupGoal)
+        {
+            finishZone.EnableZone();
+        }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        // Object
-        Pickup pickup = other.GetComponent<Pickup>();
-        pickup.GetPickedUp();
-        spawner.spawnCount--;
+        // Pickup
+        if (other.TryGetComponent(out Pickup pickup))
+        {
+            // Object
+            pickup.GetPickedUp();
+            spawner.spawnCount--;
 
-        // Audio
-        pickup.GetComponent<AudioSource>().Play();
+            // Audio
+            pickup.GetComponent<AudioSource>().Play();
 
-        // Score
-        score++;
-        GUIText.text = score.ToString();
+            // Score
+            score++;
+            GUIText.text = score.ToString();
+        }
+        else if (score >= spawner.pickupGoal)
+        {
+            gameStateControl.SetGameState(GameStateControl.GameState.GameOver);
+        }
     }
 }
