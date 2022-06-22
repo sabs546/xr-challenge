@@ -5,9 +5,10 @@ using UnityEngine;
 public class Controller : MonoBehaviour
 {
     [Header("Movement")]
-    public float walkSpeed;
-    public float sprintSpeed;
-    public float currentSpeed { get; private set; }
+    public float walkSpeed; // Walking maximum
+    public float sprintSpeed; // Sprinting maximum
+    public float airSpeed; // Air maneuverability
+    public float currentSpeed { get; private set; } // Speed being applied
     public float jumpPower;
     private Vector2 directionalInput;
     private float jumpInput;
@@ -21,6 +22,9 @@ public class Controller : MonoBehaviour
     public LayerMask RockyGround;
     public LayerMask CleanGround;
     public float gravity;
+    private Vector3 currentVelocity; // Current speed of the rigid body
+    float oldFallSpeed;
+
 
     [Header("Walk Bobbing")]
     [SerializeField]
@@ -46,6 +50,8 @@ public class Controller : MonoBehaviour
     [Header("Audio")]
     [SerializeField]
     private AudioClip[] skids;
+    [SerializeField]
+    private AudioClip[] landing;
     public AudioSource audioSource;
     public bool moving;
 
@@ -143,12 +149,29 @@ public class Controller : MonoBehaviour
     private void Movement()
     {
         moveDirection = orientation.forward * directionalInput.x + orientation.right * directionalInput.y;
-        rb.AddForce(moveDirection.normalized * currentSpeed * 10.0f, ForceMode.Force);
+        rb.AddForce(moveDirection.normalized * (Ground != Air ? currentSpeed : airSpeed), ForceMode.Force);
         rb.AddForce(0.0f, -gravity * Time.deltaTime, 0.0f, ForceMode.Force);
 
         if (jumpInput != 0 && Ground != Air)
         {
             rb.AddExplosionForce(jumpPower, new Vector3(transform.position.x, transform.position.y - 0.6f, transform.position.z), 1.0f);
+        }
+
+        oldFallSpeed = currentVelocity.y;
+        currentVelocity = rb.GetPointVelocity(transform.position);
+        if (currentVelocity.y == 0.0f)
+        {
+            // Big thud or small thud?
+            if (oldFallSpeed <= -8.0f)
+            {
+                audioSource.clip = landing[1];
+                audioSource.Play();
+            }
+            else if (oldFallSpeed <= -5.0f)
+            {
+                audioSource.clip = landing[0];
+                audioSource.Play();
+            }
         }
     }
 

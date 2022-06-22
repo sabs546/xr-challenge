@@ -10,23 +10,30 @@ public class PickupSpawner : MonoBehaviour
     public int spawnCooldown;
     private float timer;
     private static float skipInput;
+    [SerializeField]
+    private GameStateControl gameStateControl;
 
     [SerializeField]
     private GameObject player;
+
+    [Header("Locations")]
+    [SerializeField]
+    private GameObject levelCameraLocation;
     [SerializeField]
     private GameObject[] spawnLocations;
     [SerializeField]
     private GameObject[] cameraLocations;
     private List<GameObject> pickupsSpawned;
-    [SerializeField]
-    private GameStateControl gameStateControl;
+    private CameraCommand cameraCommand;
 
     // Start is called before the first frame update
-    void Start()
+    void OnEnable()
     {
         timer = spawnCooldown;
         pickupsSpawned = new List<GameObject>();
         skipInput = 0;
+        cameraCommand = GetComponent<CameraCommand>();
+        cameraCommand.enabled = true;
     }
 
     // Update is called once per frame
@@ -55,6 +62,8 @@ public class PickupSpawner : MonoBehaviour
             {
                 Camera.main.transform.position = cameraLocations[pickupsSpawned.Count].transform.position;
                 Camera.main.transform.rotation = cameraLocations[pickupsSpawned.Count].transform.rotation;
+                cameraCommand.pivotPos = spawnLocations[pickupsSpawned.Count].transform.position;
+                cameraCommand.cameraLocation = cameraLocations[pickupsSpawned.Count].transform;
                 GeneratePickup();
                 timer = spawnCooldown;
             }
@@ -65,6 +74,7 @@ public class PickupSpawner : MonoBehaviour
             if (timer <= 0.0f)
             {
                 gameStateControl.SetGameState(GameStateControl.GameState.Playing);
+                cameraCommand.enabled = false;
             }
         }
     }

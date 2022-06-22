@@ -5,7 +5,7 @@ using UnityEngine;
 public class GameStateControl : MonoBehaviour
 {
     public enum GameState { Menu, Cutscene, Playing, GameOver };
-    public GameState gameState { get; private set; }
+    public static GameState gameState { get; private set; }
 
     [SerializeField]
     private GameObject cam;
@@ -79,13 +79,13 @@ public class GameStateControl : MonoBehaviour
                 gameState = GameState.Cutscene;
                 mainMenu.SetActive(false);
                 levelDescription.SetActive(true);
-                inGameUI.SetActive(true);
+                inGameUI.SetActive(false);
                 gameOver.SetActive(false);
                 player.GetComponent<Controller>().enabled = false;
                 spawner.SetActive(true);
                 finishZone.SetActive(true);
 
-                // Bring the camera back to the menu position
+                // Bring the camera back to the preview position
                 cam.transform.position = cutsceneCam.position;
                 cam.transform.rotation = cutsceneCam.rotation;
                 cam.GetComponent<CameraControl>().enabled = false;

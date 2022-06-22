@@ -4,13 +4,12 @@ using UnityEngine;
 
 public class FinishZone : MonoBehaviour
 {
-    [SerializeField]
-    private bool zoneActive;
+    public bool zoneActive { get; private set; }
     [SerializeField]
     private Material red;
     [SerializeField]
     private Material green;
-    private MeshRenderer meshRenderer;
+    public MeshRenderer meshRenderer { get; private set; }
 
     // Start is called before the first frame update
     void Start()
@@ -34,5 +33,6 @@ public class FinishZone : MonoBehaviour
     {
         meshRenderer.material = green;
         GetComponent<CapsuleCollider>().enabled = true;
+        zoneActive = true;
     }
 }
