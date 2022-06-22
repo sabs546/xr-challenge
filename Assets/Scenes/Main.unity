@@ -2079,10 +2079,20 @@ MonoBehaviour:
   walkSpeed: 2
   sprintSpeed: 4
   groundDrag: 5
-  grounded: 0
   Ground:
     serializedVersion: 2
+    m_Bits: 0
+  Air:
+    serializedVersion: 2
     m_Bits: 512
+  RockyGround:
+    serializedVersion: 2
+    m_Bits: 1024
+  CleanGround:
+    serializedVersion: 2
+    m_Bits: 2048
+  gravity: 200
+  terminalVelocity: 1000
   orientation: {fileID: 1146234701}
   walkBouncePower: 0.02
   sprintBouncePower: 0.02
@@ -2808,7 +2818,7 @@ GameObject:
   - component: {fileID: 1641228111}
   - component: {fileID: 1641228110}
   - component: {fileID: 1641228109}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Long Beam
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3043,7 +3053,7 @@ GameObject:
   - component: {fileID: 1708581205}
   - component: {fileID: 1708581204}
   - component: {fileID: 1708581203}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Ramp
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3171,7 +3181,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerController: {fileID: 1342394707}
-  footSteps:
+  footStepsRocky:
   - {fileID: 8300000, guid: c87c3a812abe2fc4baa1fe54b4b77172, type: 3}
   - {fileID: 8300000, guid: ee6a6c12e92b76347881600e494ea047, type: 3}
   - {fileID: 8300000, guid: 06438add0bb42f846b7f1e2e0fcb78cb, type: 3}
@@ -3180,6 +3190,12 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 0810c6bbffb6c0143984f3145f710f69, type: 3}
   - {fileID: 8300000, guid: ebd381bfafa32b844a6954fc40a08c2e, type: 3}
   - {fileID: 8300000, guid: 5c3c2c44515d6fe44a395faf0741edc0, type: 3}
+  footStepsClean:
+  - {fileID: 8300000, guid: eec53751c4e79a7469fc34e774360128, type: 3}
+  - {fileID: 8300000, guid: dbe4405baeea2404ba3d422430b5fd3b, type: 3}
+  - {fileID: 8300000, guid: c8657061120b2da4fb645654b16201f6, type: 3}
+  - {fileID: 8300000, guid: 8ff53086d637af8478c1408b78b3dd05, type: 3}
+  - {fileID: 8300000, guid: b662731f964d624449b092d4198147de, type: 3}
 --- !u!1 &2021534230
 GameObject:
   m_ObjectHideFlags: 0
@@ -3326,7 +3342,7 @@ GameObject:
   - component: {fileID: 2030419609}
   - component: {fileID: 2030419608}
   - component: {fileID: 2030419607}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: Floor
   m_TagString: Untagged
   m_Icon: {fileID: 0}

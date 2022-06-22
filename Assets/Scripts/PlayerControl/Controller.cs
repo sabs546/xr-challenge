@@ -10,12 +10,17 @@ public class Controller : MonoBehaviour
     public float currentSpeed { get; private set; }
     private Vector2 directionalInput;
     private Vector3 moveDirection;
+
+    [Header("Physics")]
     [SerializeField]
     private float groundDrag;
-    [SerializeField]
-    private bool grounded;
     public LayerMask Ground;
+    public LayerMask Air;
+    public LayerMask RockyGround;
+    public LayerMask CleanGround;
+    public float gravity;
 
+    [Header("Walk Bobbing")]
     [SerializeField]
     private Transform orientation;
     private Rigidbody rb;
@@ -57,10 +62,16 @@ public class Controller : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Physics.Raycast(transform.position, Vector3.down, transform.lossyScale.y * 0.5f + 0.3f, RockyGround))
+            Ground = RockyGround;
+        else if (Physics.Raycast(transform.position, Vector3.down, transform.lossyScale.y * 0.5f + 0.3f, CleanGround))
+            Ground = CleanGround;
+        else Ground = Air;
+
         PlayerInput();
         SpeedLimit();
 
-        if (grounded) rb.drag = groundDrag;
+        if (Ground != Air) rb.drag = groundDrag;
         else rb.drag = 0.0f;
 
         if (Input.GetKeyDown(controls.Exit))
@@ -80,7 +91,7 @@ public class Controller : MonoBehaviour
         directionalInput.x = Input.GetAxisRaw("Vertical");
         directionalInput.y = Input.GetAxisRaw("Horizontal");
 
-        if (directionalInput.x == 0.0f && directionalInput.y == 0.0f)
+        if (directionalInput.x == 0.0f && directionalInput.y == 0.0f && Ground != Air)
         {
             if (currentSpeed > walkSpeed && moving)
             {
@@ -130,6 +141,7 @@ public class Controller : MonoBehaviour
     {
         moveDirection = orientation.forward * directionalInput.x + orientation.right * directionalInput.y;
         rb.AddForce(moveDirection.normalized * currentSpeed * 10.0f, ForceMode.Force);
+        rb.AddForce(0.0f, -gravity * Time.deltaTime, 0.0f, ForceMode.Force);
     }
 
     private void SpeedLimit()
@@ -141,10 +153,5 @@ public class Controller : MonoBehaviour
             Vector3 limitedVelocity = flatVelocity.normalized * currentSpeed;
             rb.velocity = new Vector3(limitedVelocity.x, rb.velocity.y, limitedVelocity.z);
         }
-    }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.layer == Ground) grounded = true;
     }
 }

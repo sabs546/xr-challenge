@@ -10,7 +10,9 @@ public class WalkBobbing : MonoBehaviour
     [SerializeField]
     private Controller playerController;
     [SerializeField]
-    private AudioClip[] footSteps;
+    private AudioClip[] footStepsRocky;
+    [SerializeField]
+    private AudioClip[] footStepsClean;
 
     // Start is called before the first frame update
     void Start()
@@ -21,7 +23,7 @@ public class WalkBobbing : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        if (playerController.moving)
+        if (playerController.moving && playerController.Ground != playerController.Air)
         {
             timer += playerController.currentSpeed * Time.deltaTime;
             if (transform.localPosition.y < 0.5f)
@@ -29,7 +31,14 @@ public class WalkBobbing : MonoBehaviour
                 // todo need a floor value
                 transform.localPosition = new Vector3(transform.localPosition.x, 0.5f, transform.localPosition.z);
                 currentYBounce = playerController.bouncePower;
-                playerController.audioSource.clip = footSteps[Random.Range(0, footSteps.Length)];
+                if (playerController.Ground == playerController.RockyGround)
+                {
+                    playerController.audioSource.clip = footStepsRocky[Random.Range(0, footStepsRocky.Length)];
+                }
+                else if (playerController.Ground == playerController.CleanGround)
+                {
+                    playerController.audioSource.clip = footStepsClean[Random.Range(0, footStepsClean.Length)];
+                }
                 playerController.audioSource.Play();
             }
             transform.localPosition = new Vector3(transform.localPosition.x, transform.localPosition.y + currentYBounce, transform.localPosition.z);
