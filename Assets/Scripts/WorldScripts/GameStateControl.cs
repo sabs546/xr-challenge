@@ -4,13 +4,15 @@ using UnityEngine;
 
 public class GameStateControl : MonoBehaviour
 {
-    public enum GameState { Menu, Playing, GameOver };
+    public enum GameState { Menu, Cutscene, Playing, GameOver };
     public GameState gameState { get; private set; }
 
     [SerializeField]
     private GameObject cam;
     private Vector3 menuCamPos;
     private Quaternion menuCamRot;
+
+    public Transform cutsceneCam;
 
     [Header("State Change Objects")]
     [SerializeField]
@@ -70,6 +72,25 @@ public class GameStateControl : MonoBehaviour
                 player.GetComponent<ScoreManager>().ResetScore();
                 break;
 
+            case GameState.Cutscene:
+                gameState = GameState.Cutscene;
+                mainMenu.SetActive(false);
+                inGameUI.SetActive(true);
+                gameOver.SetActive(false);
+                player.GetComponent<Controller>().enabled = false;
+                spawner.SetActive(true);
+                finishZone.SetActive(true);
+
+                // Bring the camera back to the menu position
+                cam.transform.position = cutsceneCam.position;
+                cam.transform.rotation = cutsceneCam.rotation;
+                cam.GetComponent<CameraControl>().enabled = false;
+
+                // Cursor settings
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+                break;
+
             case GameState.Playing:
                 gameState = GameState.Playing;
                 mainMenu.SetActive(false);
@@ -112,7 +133,7 @@ public class GameStateControl : MonoBehaviour
 
     public void StartGame()
     {
-        SetGameState(GameState.Playing);
+        SetGameState(GameState.Cutscene);
     }
 
     public void RestartGame()

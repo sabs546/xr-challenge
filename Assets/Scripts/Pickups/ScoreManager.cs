@@ -6,7 +6,7 @@ using TMPro;
 public class ScoreManager : MonoBehaviour
 {
     public TextMeshProUGUI GUIText; // Score text
-    public PickupSpawner spawner;   // To lower the spawn count
+    public int pickupGoal;
     public int score { get; private set; }
     [SerializeField]
     private FinishZone finishZone;
@@ -22,7 +22,7 @@ public class ScoreManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (score >= spawner.pickupGoal)
+        if (score >= pickupGoal)
         {
             finishZone.EnableZone();
         }
@@ -35,7 +35,6 @@ public class ScoreManager : MonoBehaviour
         {
             // Object
             pickup.GetPickedUp();
-            spawner.spawnCount--;
 
             // Audio
             pickup.GetComponent<AudioSource>().Play();
@@ -44,7 +43,7 @@ public class ScoreManager : MonoBehaviour
             score++;
             GUIText.text = score.ToString();
         }
-        else if (score >= spawner.pickupGoal)
+        else if (score >= pickupGoal)
         {
             gameStateControl.SetGameState(GameStateControl.GameState.GameOver);
         }
