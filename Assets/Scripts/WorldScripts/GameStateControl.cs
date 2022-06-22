@@ -18,6 +18,8 @@ public class GameStateControl : MonoBehaviour
     [SerializeField]
     private GameObject mainMenu;
     [SerializeField]
+    private GameObject levelDescription;
+    [SerializeField]
     private GameObject inGameUI;
     [SerializeField]
     private GameObject gameOver;
@@ -54,6 +56,7 @@ public class GameStateControl : MonoBehaviour
             case GameState.Menu:
                 gameState = GameState.Menu;
                 mainMenu.SetActive(true);
+                levelDescription.SetActive(false);
                 inGameUI.SetActive(false);
                 gameOver.SetActive(false);
                 player.GetComponent<Controller>().enabled = false;
@@ -75,6 +78,7 @@ public class GameStateControl : MonoBehaviour
             case GameState.Cutscene:
                 gameState = GameState.Cutscene;
                 mainMenu.SetActive(false);
+                levelDescription.SetActive(true);
                 inGameUI.SetActive(true);
                 gameOver.SetActive(false);
                 player.GetComponent<Controller>().enabled = false;
@@ -94,10 +98,11 @@ public class GameStateControl : MonoBehaviour
             case GameState.Playing:
                 gameState = GameState.Playing;
                 mainMenu.SetActive(false);
+                levelDescription.SetActive(false);
                 inGameUI.SetActive(true);
                 gameOver.SetActive(false);
                 player.GetComponent<Controller>().enabled = true;
-                spawner.SetActive(true);
+                spawner.SetActive(false);
                 finishZone.SetActive(true);
 
                 // Hook the camera to the player
@@ -113,6 +118,7 @@ public class GameStateControl : MonoBehaviour
             case GameState.GameOver:
                 gameState = GameState.GameOver;
                 mainMenu.SetActive(false);
+                levelDescription.SetActive(false);
                 inGameUI.SetActive(false);
                 gameOver.SetActive(true);
                 player.GetComponent<Controller>().enabled = false;

@@ -9,6 +9,7 @@ public class PickupSpawner : MonoBehaviour
     public GameObject pickup;
     public int spawnCooldown;
     private float timer;
+    private static float skipInput;
 
     [SerializeField]
     private GameObject player;
@@ -25,11 +26,28 @@ public class PickupSpawner : MonoBehaviour
     {
         timer = spawnCooldown;
         pickupsSpawned = new List<GameObject>();
+        skipInput = 0;
     }
 
     // Update is called once per frame
     void Update()
     {
+        // Prevents the skip from working every frame by holding down spacebar
+        if (skipInput == 0)
+        {
+            skipInput = Input.GetAxisRaw("Jump");
+
+            if (skipInput != 0 && pickupsSpawned.Count != spawnLocations.Count())
+            {
+                timer = 0.0f;
+            }
+        }
+        else
+        {
+            skipInput = Input.GetAxisRaw("Jump");
+        }
+
+        // Letting it run just does it normally
         if (pickupsSpawned.Count < spawnLocations.Count())
         {
             timer -= Time.deltaTime;
