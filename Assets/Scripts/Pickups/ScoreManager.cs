@@ -35,6 +35,7 @@ public class ScoreManager : MonoBehaviour
         {
             // Object
             pickup.GetPickedUp();
+            pickup.GetComponent<CapsuleCollider>().enabled = false;
 
             // Audio
             pickup.GetComponent<AudioSource>().Play();

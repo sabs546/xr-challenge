@@ -8,7 +8,9 @@ public class Controller : MonoBehaviour
     public float walkSpeed;
     public float sprintSpeed;
     public float currentSpeed { get; private set; }
+    public float jumpPower;
     private Vector2 directionalInput;
+    private float jumpInput;
     private Vector3 moveDirection;
 
     [Header("Physics")]
@@ -90,6 +92,7 @@ public class Controller : MonoBehaviour
     {
         directionalInput.x = Input.GetAxisRaw("Vertical");
         directionalInput.y = Input.GetAxisRaw("Horizontal");
+        jumpInput = Input.GetAxisRaw("Jump");
 
         if (directionalInput.x == 0.0f && directionalInput.y == 0.0f && Ground != Air)
         {
@@ -142,6 +145,11 @@ public class Controller : MonoBehaviour
         moveDirection = orientation.forward * directionalInput.x + orientation.right * directionalInput.y;
         rb.AddForce(moveDirection.normalized * currentSpeed * 10.0f, ForceMode.Force);
         rb.AddForce(0.0f, -gravity * Time.deltaTime, 0.0f, ForceMode.Force);
+
+        if (jumpInput != 0 && Ground != Air)
+        {
+            rb.AddExplosionForce(jumpPower, new Vector3(transform.position.x, transform.position.y - 0.6f, transform.position.z), 1.0f);
+        }
     }
 
     private void SpeedLimit()
