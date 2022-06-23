@@ -13,11 +13,13 @@ public class WalkBobbing : MonoBehaviour
     private AudioClip[] footStepsRocky;
     [SerializeField]
     private AudioClip[] footStepsClean;
+    private AudioSource source;
 
     // Start is called before the first frame update
     void Start()
     {
         timer = 0.0f;
+        source = playerController.audioSource[0];
     }
 
     // Update is called once per frame
@@ -25,21 +27,21 @@ public class WalkBobbing : MonoBehaviour
     {
         if (playerController.moving && playerController.Ground != playerController.Air)
         {
-            timer += playerController.currentSpeed * Time.deltaTime;
+            timer += playerController.currentSpeedLimit * Time.deltaTime;
             if (transform.localPosition.y < 0.5f)
             {
                 // todo need a floor value
                 transform.localPosition = new Vector3(transform.localPosition.x, 0.5f, transform.localPosition.z);
-                currentYBounce = playerController.bouncePower;
+                currentYBounce = playerController.bouncePower / playerController.charged;
                 if (playerController.Ground == playerController.RockyGround)
                 {
-                    playerController.audioSource.clip = footStepsRocky[Random.Range(0, footStepsRocky.Length)];
+                    source.clip = footStepsRocky[Random.Range(0, footStepsRocky.Length)];
                 }
                 else if (playerController.Ground == playerController.CleanGround)
                 {
-                    playerController.audioSource.clip = footStepsClean[Random.Range(0, footStepsClean.Length)];
+                    source.clip = footStepsClean[Random.Range(0, footStepsClean.Length)];
                 }
-                playerController.audioSource.Play();
+                source.Play();
             }
             transform.localPosition = new Vector3(transform.localPosition.x, transform.localPosition.y + currentYBounce, transform.localPosition.z);
             currentYBounce -= playerController.fallSpeed * Time.deltaTime;

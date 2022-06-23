@@ -1,18 +1,36 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Controller : MonoBehaviour
 {
     [Header("Movement")]
-    public float walkSpeed; // Walking maximum
-    public float sprintSpeed; // Sprinting maximum
-    public float airSpeed; // Air maneuverability
-    public float currentSpeed { get; private set; } // Speed being applied
+    public float walkSpeedLimit; // Walking maximum
+    public float sprintSpeedLimit; // Sprinting maximum
+    public float chargedSpeedLimit; // Charged maximum
+    public float airSpeedLimit; // Air maneuverability
+    public float currentSpeedLimit { get; private set; } // Speed being applied
     public float jumpPower;
+    private Vector3 moveDirection;
+
+    // Inputs
     private Vector2 directionalInput;
     private float jumpInput;
-    private Vector3 moveDirection;
+    private float sprintInput;
+
+    [Header("Charge Bar")]
+    [SerializeField]
+    private RectTransform chargeBar;
+    private float chargeTimer;
+    public int charged { get; private set; } // Charged is a multiplier of 2 when active
+    [SerializeField]
+    [Tooltip("How fast do you need to move to start building meter")]
+    private float chargingThreshold;
+    [SerializeField]
+    [Range(0, 10)]
+    [Tooltip("How low does the meter need to go to remove charge")]
+    private float removalThreshold;
 
     [Header("Physics")]
     [SerializeField]
@@ -52,18 +70,23 @@ public class Controller : MonoBehaviour
     private AudioClip[] skids;
     [SerializeField]
     private AudioClip[] landing;
-    public AudioSource audioSource;
+    [SerializeField]
+    private AudioClip[] wind;
+    [HideInInspector]
+    public AudioSource[] audioSource; // Source 0 for steps, 1 for other stuff
+    [HideInInspector]
     public bool moving;
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         controls = GetComponent<Controls>();
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
-        currentSpeed = 0.0f;
+        currentSpeedLimit = 0.0f;
+        charged = 1;
 
-        audioSource = GetComponent<AudioSource>();
+        audioSource = GetComponents<AudioSource>();
         moving = false;
     }
 
@@ -92,6 +115,43 @@ public class Controller : MonoBehaviour
     private void FixedUpdate()
     {
         Movement();
+
+        // Charge timer code
+        if (rb.velocity.magnitude >= chargingThreshold || (directionalInput == Vector2.zero && sprintInput != 0.0f))
+        {
+            chargeTimer += Time.deltaTime;
+        }
+        else
+        {
+            chargeTimer -= Time.deltaTime;
+            if (chargeTimer <= removalThreshold)
+            {
+                charged = 1;
+                if (Camera.main.fieldOfView > 60.0f)
+                {
+                    Camera.main.fieldOfView -= 10.0f * Time.deltaTime;
+                }
+            }
+        }
+
+        if (chargeTimer < 0.0f)
+        {
+            chargeTimer = 0.0f;
+        }
+        else if (chargeTimer >= 5.0f) // 5.0 is just for the full bar length
+        {
+            chargeTimer = 5.0f;
+            charged = 2;
+            currentSpeedLimit = chargedSpeedLimit;
+            if (Camera.main.fieldOfView < 70.0f)
+            {
+                Camera.main.fieldOfView += 10.0f * Time.deltaTime;
+            }
+        }
+        Mathf.Clamp(Camera.main.fieldOfView, 60.0f, 70.0f);
+
+        chargeBar.localScale = new Vector3(1.0f, chargeTimer * 0.2f, 1.0f);
+        chargeBar.GetComponent<Image>().color = new Color(1.0f, 1.0f, 1.0f, chargeTimer * 0.2f);
     }
 
     private void PlayerInput()
@@ -99,49 +159,51 @@ public class Controller : MonoBehaviour
         directionalInput.x = Input.GetAxisRaw("Vertical");
         directionalInput.y = Input.GetAxisRaw("Horizontal");
         jumpInput = Input.GetAxisRaw("Jump");
+        sprintInput = Input.GetAxisRaw("Sprint");
 
         if (directionalInput.x == 0.0f && directionalInput.y == 0.0f && Ground != Air)
         {
-            if (currentSpeed > walkSpeed && moving)
+            if (currentSpeedLimit > walkSpeedLimit && moving)
             {
-                audioSource.clip = skids[Random.Range(0, skids.Length)];
-                audioSource.Play();
+                audioSource[1].clip = skids[Random.Range(0, skids.Length)];
+                audioSource[1].Play();
             }
             moving = false;
-            if (currentSpeed > 0.0f)
+            if (currentSpeedLimit > 0.0f)
             {
-                currentSpeed -= groundDrag * Time.deltaTime;
-                if (currentSpeed < 0.0f)
+                currentSpeedLimit -= groundDrag * Time.deltaTime;
+                if (currentSpeedLimit < 0.0f)
                 {
-                    currentSpeed = 0.0f;
+                    currentSpeedLimit = 0.0f;
                 }
             }
         }
         else
         {
             moving = true;
-            if (Input.GetKey(controls.Sprint))
+            if (sprintInput != 0)
             {
-                currentSpeed += sprintSpeed * Time.deltaTime;
-                if (currentSpeed > sprintSpeed)
+                currentSpeedLimit += sprintSpeedLimit * Time.deltaTime;
+                if (currentSpeedLimit > sprintSpeedLimit)
                 {
-                    currentSpeed = sprintSpeed;
+                    currentSpeedLimit = sprintSpeedLimit;
                 }
                 bouncePower = sprintBouncePower;
                 fallSpeed = sprintFallSpeed;
             }
             else
             {
-                if (currentSpeed > walkSpeed)
+                if (currentSpeedLimit > walkSpeedLimit)
                 {
-                    currentSpeed -= walkSpeed * Time.deltaTime;
+                    currentSpeedLimit -= walkSpeedLimit * Time.deltaTime;
                 }
                 else
                 {
-                    currentSpeed = walkSpeed;
+                    currentSpeedLimit = walkSpeedLimit;
                 }
                 bouncePower = walkBouncePower;
                 fallSpeed = walkFallSpeed;
+                currentSpeedLimit = walkSpeedLimit;
             }
         }
     }
@@ -149,12 +211,12 @@ public class Controller : MonoBehaviour
     private void Movement()
     {
         moveDirection = orientation.forward * directionalInput.x + orientation.right * directionalInput.y;
-        rb.AddForce(moveDirection.normalized * (Ground != Air ? currentSpeed : airSpeed), ForceMode.Force);
+        rb.AddForce(moveDirection.normalized * (Ground != Air ? currentSpeedLimit : airSpeedLimit), ForceMode.Force);
         rb.AddForce(0.0f, -gravity * Time.deltaTime, 0.0f, ForceMode.Force);
 
         if (jumpInput != 0 && Ground != Air)
         {
-            rb.AddExplosionForce(jumpPower, new Vector3(transform.position.x, transform.position.y - 0.6f, transform.position.z), 1.0f);
+            rb.AddExplosionForce(jumpPower, new Vector3(transform.position.x, (transform.position.y - 0.6f) * charged, transform.position.z), 1.0f);
         }
 
         oldFallSpeed = currentVelocity.y;
@@ -164,13 +226,13 @@ public class Controller : MonoBehaviour
             // Big thud or small thud?
             if (oldFallSpeed <= -8.0f)
             {
-                audioSource.clip = landing[1];
-                audioSource.Play();
+                audioSource[1].clip = landing[1];
+                audioSource[1].Play();
             }
             else if (oldFallSpeed <= -5.0f)
             {
-                audioSource.clip = landing[0];
-                audioSource.Play();
+                audioSource[1].clip = landing[0];
+                audioSource[1].Play();
             }
         }
     }
@@ -179,9 +241,9 @@ public class Controller : MonoBehaviour
     {
         Vector3 flatVelocity = new Vector3(rb.velocity.x, 0.0f, rb.velocity.z);
 
-        if (flatVelocity.magnitude > currentSpeed)
+        if (flatVelocity.magnitude > currentSpeedLimit)
         {
-            Vector3 limitedVelocity = flatVelocity.normalized * currentSpeed;
+            Vector3 limitedVelocity = flatVelocity.normalized * currentSpeedLimit;
             rb.velocity = new Vector3(limitedVelocity.x, rb.velocity.y, limitedVelocity.z);
         }
     }
