@@ -31,6 +31,9 @@ public class Controller : MonoBehaviour
     [Range(0, 10)]
     [Tooltip("How low does the meter need to go to remove charge")]
     private float removalThreshold;
+    [SerializeField]
+    private float burstCooldown;
+    private bool burstTriggered;
 
     [Header("Physics")]
     [SerializeField]
@@ -85,6 +88,7 @@ public class Controller : MonoBehaviour
         rb.freezeRotation = true;
         currentSpeedLimit = 0.0f;
         charged = 1;
+        burstTriggered = false;
 
         audioSource = GetComponents<AudioSource>();
         moving = false;
@@ -114,10 +118,24 @@ public class Controller : MonoBehaviour
 
     private void FixedUpdate()
     {
-        Movement();
-
         // Charge timer code
-        if (rb.velocity.magnitude >= chargingThreshold || (directionalInput == Vector2.zero && sprintInput != 0.0f))
+        if (burstTriggered)
+        {
+            if (chargeTimer >= 4.0f)
+            {
+                chargeTimer -= Time.deltaTime;
+            }
+            else
+            {
+                burstTriggered = false;
+            }
+        }
+        else
+        {
+            Movement();
+        }
+
+        if ((rb.velocity.magnitude >= chargingThreshold || directionalInput == Vector2.zero && sprintInput != 0.0f) && !burstTriggered)
         {
             chargeTimer += Time.deltaTime;
         }
@@ -211,12 +229,24 @@ public class Controller : MonoBehaviour
     private void Movement()
     {
         moveDirection = orientation.forward * directionalInput.x + orientation.right * directionalInput.y;
-        rb.AddForce(moveDirection.normalized * (Ground != Air ? currentSpeedLimit : airSpeedLimit), ForceMode.Force);
+        if (rb.velocity.magnitude == 0.0f && charged == 2)
+        {
+            rb.AddForce(moveDirection.normalized * currentSpeedLimit, ForceMode.Impulse);
+            if (moveDirection != Vector3.zero)
+            {
+                burstTriggered = true;
+            }
+        }
+        else
+        {
+            rb.AddForce(moveDirection.normalized * (Ground != Air ? currentSpeedLimit : airSpeedLimit), ForceMode.Force);
+        }
+
         rb.AddForce(0.0f, -gravity * Time.deltaTime, 0.0f, ForceMode.Force);
 
         if (jumpInput != 0 && Ground != Air)
         {
-            rb.AddExplosionForce(jumpPower, new Vector3(transform.position.x, (transform.position.y - 0.6f) * charged, transform.position.z), 1.0f);
+            rb.AddForce(0.0f, jumpPower * charged, 0.0f, ForceMode.Impulse);
         }
 
         oldFallSpeed = currentVelocity.y;
