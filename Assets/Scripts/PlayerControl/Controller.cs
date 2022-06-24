@@ -35,13 +35,14 @@ public class Controller : MonoBehaviour
     private float burstCooldown;
     private bool burstTriggered;
 
-    [Header("Physics")]
+    [Header("Physics")] // This would normally be in its own script but not this time
     [SerializeField]
     private float groundDrag;
     public LayerMask Ground;
     public LayerMask Air;
     public LayerMask RockyGround;
     public LayerMask CleanGround;
+    public LayerMask SoftGround;
     public float gravity;
     private Vector3 currentVelocity; // Current speed of the rigid body
     float oldFallSpeed;
@@ -63,10 +64,6 @@ public class Controller : MonoBehaviour
     private float walkFallSpeed;
     [SerializeField]
     private float sprintFallSpeed;
-
-    [Header("World Limits")]
-    public float xLimit; // X Border limits for the map
-    public float zLimit; // Z Border limits for the map
 
     [Header("Audio")]
     [SerializeField]
@@ -97,10 +94,13 @@ public class Controller : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // Maybe there's a better way to do this, I'm not sure
         if (Physics.Raycast(transform.position, Vector3.down, transform.lossyScale.y * 0.5f + 0.3f, RockyGround))
             Ground = RockyGround;
         else if (Physics.Raycast(transform.position, Vector3.down, transform.lossyScale.y * 0.5f + 0.3f, CleanGround))
             Ground = CleanGround;
+        else if (Physics.Raycast(transform.position, Vector3.down, transform.lossyScale.y * 0.5f + 0.3f, SoftGround))
+            Ground = SoftGround;
         else Ground = Air;
 
         PlayerInput();
@@ -252,18 +252,19 @@ public class Controller : MonoBehaviour
             rb.AddForce(0.0f, jumpPower * charged, 0.0f, ForceMode.Impulse);
         }
 
+        // Fall damage
         oldFallSpeed = currentVelocity.y;
         currentVelocity = rb.GetPointVelocity(transform.position);
-        if (currentVelocity.y == 0.0f)
+        if (currentVelocity.y == 0.0f && Ground != SoftGround)
         {
             // Big thud or small thud?
-            if (oldFallSpeed <= -8.0f)
+            if (oldFallSpeed <= -16.0f)
             {
                 audioSource[1].clip = landing[1];
                 audioSource[1].Play();
                 GetComponent<HealthManager>().TakeDamage(HealthManager.DamageType.HighFall);
             }
-            else if (oldFallSpeed <= -5.0f)
+            else if (oldFallSpeed <= -10.0f)
             {
                 audioSource[1].clip = landing[0];
                 audioSource[1].Play();
