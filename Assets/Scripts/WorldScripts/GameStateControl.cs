@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class GameStateControl : MonoBehaviour
 {
-    public enum GameState { Menu, Cutscene, Playing, GameOver };
+    public enum GameState { Menu, Cutscene, Playing, LevelComplete, LevelFailed };
     public static GameState gameState { get; private set; }
 
     [SerializeField]
@@ -22,7 +22,9 @@ public class GameStateControl : MonoBehaviour
     [SerializeField]
     private GameObject inGameUI;
     [SerializeField]
-    private GameObject gameOver;
+    private GameObject levelComplete;
+    [SerializeField]
+    private GameObject levelFailed;
     [SerializeField]
     private GameObject player;
     [SerializeField]
@@ -51,14 +53,15 @@ public class GameStateControl : MonoBehaviour
 
     public void SetGameState(GameState state)
     {
-        switch (state)
+        switch (state) // I know this is a little excessive, but I won't be taking any chances
         {
             case GameState.Menu:
                 gameState = GameState.Menu;
                 mainMenu.SetActive(true);
                 levelDescription.SetActive(false);
                 inGameUI.SetActive(false);
-                gameOver.SetActive(false);
+                levelComplete.SetActive(false);
+                levelFailed.SetActive(false);
                 player.GetComponent<Controller>().enabled = false;
                 spawner.SetActive(false);
                 finishZone.SetActive(false);
@@ -80,7 +83,8 @@ public class GameStateControl : MonoBehaviour
                 mainMenu.SetActive(false);
                 levelDescription.SetActive(true);
                 inGameUI.SetActive(false);
-                gameOver.SetActive(false);
+                levelComplete.SetActive(false);
+                levelFailed.SetActive(false);
                 player.GetComponent<Controller>().enabled = false;
                 spawner.SetActive(true);
                 finishZone.SetActive(true);
@@ -100,7 +104,8 @@ public class GameStateControl : MonoBehaviour
                 mainMenu.SetActive(false);
                 levelDescription.SetActive(false);
                 inGameUI.SetActive(true);
-                gameOver.SetActive(false);
+                levelComplete.SetActive(false);
+                levelFailed.SetActive(false);
                 player.GetComponent<Controller>().enabled = true;
                 spawner.SetActive(false);
                 finishZone.SetActive(true);
@@ -115,12 +120,34 @@ public class GameStateControl : MonoBehaviour
                 Cursor.visible = false;
                 break;
 
-            case GameState.GameOver:
-                gameState = GameState.GameOver;
+            case GameState.LevelComplete:
+                gameState = GameState.LevelComplete;
                 mainMenu.SetActive(false);
                 levelDescription.SetActive(false);
                 inGameUI.SetActive(false);
-                gameOver.SetActive(true);
+                levelComplete.SetActive(true);
+                levelFailed.SetActive(false);
+                player.GetComponent<Controller>().enabled = false;
+                spawner.SetActive(false);
+                finishZone.SetActive(false);
+
+                // Bring the camera back to the menu position
+                cam.transform.position = menuCamPos;
+                cam.transform.rotation = menuCamRot;
+                cam.GetComponent<CameraControl>().enabled = false;
+
+                // Cursor settings
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+                break;
+
+            case GameState.LevelFailed:
+                gameState = GameState.LevelFailed;
+                mainMenu.SetActive(false);
+                levelDescription.SetActive(false);
+                inGameUI.SetActive(false);
+                levelComplete.SetActive(false);
+                levelFailed.SetActive(true);
                 player.GetComponent<Controller>().enabled = false;
                 spawner.SetActive(false);
                 finishZone.SetActive(false);

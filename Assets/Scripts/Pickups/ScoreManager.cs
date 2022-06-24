@@ -46,7 +46,7 @@ public class ScoreManager : MonoBehaviour
         }
         else if (score >= pickupGoal)
         {
-            gameStateControl.SetGameState(GameStateControl.GameState.GameOver);
+            gameStateControl.SetGameState(GameStateControl.GameState.LevelComplete);
         }
     }
 

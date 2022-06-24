@@ -74,9 +74,9 @@ public class Controller : MonoBehaviour
     [SerializeField]
     private AudioClip[] landing;
     [SerializeField]
-    private AudioClip[] wind;
+    private AudioClip wind;
     [HideInInspector]
-    public AudioSource[] audioSource; // Source 0 for steps, 1 for other stuff
+    public AudioSource[] audioSource; // Source 0 for steps, 1 for other stuff, 2 for wind
     [HideInInspector]
     public bool moving;
 
@@ -148,6 +148,7 @@ public class Controller : MonoBehaviour
                 if (Camera.main.fieldOfView > 60.0f)
                 {
                     Camera.main.fieldOfView -= 10.0f * Time.deltaTime;
+                    audioSource[2].Stop();
                 }
             }
         }
@@ -164,6 +165,8 @@ public class Controller : MonoBehaviour
             if (Camera.main.fieldOfView < 70.0f)
             {
                 Camera.main.fieldOfView += 10.0f * Time.deltaTime;
+                audioSource[2].clip = wind;
+                audioSource[2].Play();
             }
         }
         Mathf.Clamp(Camera.main.fieldOfView, 60.0f, 70.0f);
@@ -181,7 +184,7 @@ public class Controller : MonoBehaviour
 
         if (directionalInput.x == 0.0f && directionalInput.y == 0.0f && Ground != Air)
         {
-            if (currentSpeedLimit > walkSpeedLimit && moving)
+            if (currentSpeedLimit > walkSpeedLimit && moving && !audioSource[1].isPlaying)
             {
                 audioSource[1].clip = skids[Random.Range(0, skids.Length)];
                 audioSource[1].Play();
@@ -258,11 +261,13 @@ public class Controller : MonoBehaviour
             {
                 audioSource[1].clip = landing[1];
                 audioSource[1].Play();
+                GetComponent<HealthManager>().TakeDamage(HealthManager.DamageType.HighFall);
             }
             else if (oldFallSpeed <= -5.0f)
             {
                 audioSource[1].clip = landing[0];
                 audioSource[1].Play();
+                GetComponent<HealthManager>().TakeDamage(HealthManager.DamageType.LowFall);
             }
         }
     }
