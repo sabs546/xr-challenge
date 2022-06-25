@@ -23,12 +23,15 @@ public class Controller : MonoBehaviour
     [SerializeField]
     private RectTransform chargeBar;
     private float chargeTimer;
+    [SerializeField]
+    [Tooltip("Speed you can charge at")]
+    private float chargeMultiplier;
     public int charged { get; private set; } // Charged is a multiplier of 2 when active
     [SerializeField]
     [Tooltip("How fast do you need to move to start building meter")]
     private float chargingThreshold;
     [SerializeField]
-    [Range(0, 10)]
+    [Range(0, 5)]
     [Tooltip("How low does the meter need to go to remove charge")]
     private float removalThreshold;
     [SerializeField]
@@ -51,7 +54,7 @@ public class Controller : MonoBehaviour
     [Header("Walk Bobbing")]
     [SerializeField]
     private Transform orientation;
-    private Rigidbody rb;
+    public Rigidbody rb { get; private set; }
     private Controls controls;
 
     public float bouncePower { get; private set; }
@@ -137,7 +140,7 @@ public class Controller : MonoBehaviour
 
         if ((rb.velocity.magnitude >= chargingThreshold || directionalInput == Vector2.zero && sprintInput != 0.0f) && !burstTriggered)
         {
-            chargeTimer += Time.deltaTime;
+            chargeTimer += (Time.deltaTime * chargeMultiplier);
         }
         else
         {
@@ -282,5 +285,15 @@ public class Controller : MonoBehaviour
             Vector3 limitedVelocity = flatVelocity.normalized * currentSpeedLimit;
             rb.velocity = new Vector3(limitedVelocity.x, rb.velocity.y, limitedVelocity.z);
         }
+    }
+
+    public void Halt()
+    {
+        rb.velocity = Vector3.zero;
+    }
+
+    public void UpgradeCharge()
+    {
+        chargeMultiplier *= 1.5f;
     }
 }

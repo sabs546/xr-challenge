@@ -6,6 +6,7 @@ public class GameStateControl : MonoBehaviour
 {
     public enum GameState { Menu, Cutscene, Playing, LevelComplete, LevelFailed };
     public static GameState gameState { get; private set; }
+    private int currentLevel;
 
     [SerializeField]
     private GameObject cam;
@@ -18,7 +19,7 @@ public class GameStateControl : MonoBehaviour
     [SerializeField]
     private GameObject mainMenu;
     [SerializeField]
-    private GameObject levelDescription;
+    private GameObject[] levelDescription;
     [SerializeField]
     private GameObject inGameUI;
     [SerializeField]
@@ -28,15 +29,16 @@ public class GameStateControl : MonoBehaviour
     [SerializeField]
     private GameObject player;
     [SerializeField]
-    private GameObject spawner;
+    private GameObject[] spawner;
     [SerializeField]
-    private GameObject finishZone;
+    private GameObject[] finishZone;
 
     private void Awake()
     {
         menuCamPos = cam.transform.position;
         menuCamRot = cam.transform.rotation;
         SetGameState(GameState.Menu);
+        currentLevel = 0;
     }
 
     // Start is called before the first frame update
@@ -58,13 +60,13 @@ public class GameStateControl : MonoBehaviour
             case GameState.Menu:
                 gameState = GameState.Menu;
                 mainMenu.SetActive(true);
-                levelDescription.SetActive(false);
+                levelDescription[currentLevel].SetActive(false);
                 inGameUI.SetActive(false);
                 levelComplete.SetActive(false);
                 levelFailed.SetActive(false);
                 player.GetComponent<Controller>().enabled = false;
-                spawner.SetActive(false);
-                finishZone.SetActive(false);
+                spawner[currentLevel].SetActive(false);
+                finishZone[currentLevel].SetActive(false);
 
                 // Bring the camera back to the menu position
                 cam.transform.position = menuCamPos;
@@ -81,13 +83,13 @@ public class GameStateControl : MonoBehaviour
             case GameState.Cutscene:
                 gameState = GameState.Cutscene;
                 mainMenu.SetActive(false);
-                levelDescription.SetActive(true);
+                levelDescription[currentLevel].SetActive(true);
                 inGameUI.SetActive(false);
                 levelComplete.SetActive(false);
                 levelFailed.SetActive(false);
                 player.GetComponent<Controller>().enabled = false;
-                spawner.SetActive(true);
-                finishZone.SetActive(true);
+                spawner[currentLevel].SetActive(true);
+                finishZone[currentLevel].SetActive(true);
 
                 // Bring the camera back to the preview position
                 cam.transform.position = cutsceneCam.position;
@@ -102,13 +104,13 @@ public class GameStateControl : MonoBehaviour
             case GameState.Playing:
                 gameState = GameState.Playing;
                 mainMenu.SetActive(false);
-                levelDescription.SetActive(false);
+                levelDescription[currentLevel].SetActive(false);
                 inGameUI.SetActive(true);
                 levelComplete.SetActive(false);
                 levelFailed.SetActive(false);
                 player.GetComponent<Controller>().enabled = true;
-                spawner.SetActive(false);
-                finishZone.SetActive(true);
+                spawner[currentLevel].SetActive(false);
+                finishZone[currentLevel].SetActive(true);
 
                 // Hook the camera to the player
                 cam.transform.position = player.transform.position;
@@ -123,13 +125,15 @@ public class GameStateControl : MonoBehaviour
             case GameState.LevelComplete:
                 gameState = GameState.LevelComplete;
                 mainMenu.SetActive(false);
-                levelDescription.SetActive(false);
+                levelDescription[currentLevel].SetActive(false);
                 inGameUI.SetActive(false);
                 levelComplete.SetActive(true);
                 levelFailed.SetActive(false);
                 player.GetComponent<Controller>().enabled = false;
-                spawner.SetActive(false);
-                finishZone.SetActive(false);
+                player.GetComponent<Controller>().Halt();
+                spawner[currentLevel].SetActive(false);
+                finishZone[currentLevel].SetActive(false);
+                currentLevel++;
 
                 // Bring the camera back to the menu position
                 cam.transform.position = menuCamPos;
@@ -144,13 +148,13 @@ public class GameStateControl : MonoBehaviour
             case GameState.LevelFailed:
                 gameState = GameState.LevelFailed;
                 mainMenu.SetActive(false);
-                levelDescription.SetActive(false);
+                levelDescription[currentLevel].SetActive(false);
                 inGameUI.SetActive(false);
                 levelComplete.SetActive(false);
                 levelFailed.SetActive(true);
                 player.GetComponent<Controller>().enabled = false;
-                spawner.SetActive(false);
-                finishZone.SetActive(false);
+                spawner[currentLevel].SetActive(false);
+                finishZone[currentLevel].SetActive(false);
 
                 // Bring the camera back to the menu position
                 cam.transform.position = menuCamPos;
