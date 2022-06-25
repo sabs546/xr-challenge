@@ -32,7 +32,7 @@ public class MovingPlatform : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        originalPosition = transform.position;
+        originalPosition = transform.localPosition;
         originalRotation = transform.rotation;
         originalScale = transform.localScale;
         triggered = triggerType == TriggerType.Constant ? true : false;
@@ -63,9 +63,9 @@ public class MovingPlatform : MonoBehaviour
     private void MovePlatform()
     {
         // Set new positions
-        tempX = transform.position.x + (xSpeed * Time.deltaTime);
-        tempY = transform.position.y + (ySpeed * Time.deltaTime);
-        tempZ = transform.position.z + (zSpeed * Time.deltaTime);
+        tempX = transform.localPosition.x + (xSpeed * Time.deltaTime);
+        tempY = transform.localPosition.y + (ySpeed * Time.deltaTime);
+        tempZ = transform.localPosition.z + (zSpeed * Time.deltaTime);
 
         // Stop them from overshooting
         tempX = Mathf.Clamp(tempX, originalPosition.x - limits.x, originalPosition.x + limits.x);
@@ -73,7 +73,7 @@ public class MovingPlatform : MonoBehaviour
         tempZ = Mathf.Clamp(tempZ, originalPosition.z - limits.z, originalPosition.z + limits.z);
 
         // Move the thing
-        transform.position = new Vector3(tempX, tempY, tempZ);
+        transform.localPosition = new Vector3(tempX, tempY, tempZ);
 
         if (looping)
         {
