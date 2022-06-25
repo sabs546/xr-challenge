@@ -15,6 +15,8 @@ public class FinishZone : MonoBehaviour
     private GameObject greenSmoke;
     public MeshRenderer meshRenderer { get; private set; }
     private AudioSource source;
+    [SerializeField]
+    private GameStateControl gameStateControl;
 
     // Start is called before the first frame update
     void Start()
@@ -32,7 +34,7 @@ public class FinishZone : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        
+        gameStateControl.SetGameState(GameStateControl.GameState.LevelComplete);
     }
 
     public void EnableZone()

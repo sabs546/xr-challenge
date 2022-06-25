@@ -6,7 +6,7 @@ public class GameStateControl : MonoBehaviour
 {
     public enum GameState { Menu, Cutscene, Playing, LevelComplete, LevelFailed };
     public static GameState gameState { get; private set; }
-    private int currentLevel;
+    public int currentLevel { get; private set; }
 
     [SerializeField]
     private GameObject cam;
@@ -133,7 +133,11 @@ public class GameStateControl : MonoBehaviour
                 player.GetComponent<Controller>().Halt();
                 spawner[currentLevel].SetActive(false);
                 finishZone[currentLevel].SetActive(false);
-                currentLevel++;
+
+                if (currentLevel < levelDescription.Length - 1)
+                {
+                    currentLevel++;
+                }
 
                 // Bring the camera back to the menu position
                 cam.transform.position = menuCamPos;

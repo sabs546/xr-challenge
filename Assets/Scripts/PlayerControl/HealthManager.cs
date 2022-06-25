@@ -40,7 +40,7 @@ public class HealthManager : MonoBehaviour
                 currentHealth -= 60;
                 break;
             case DamageType.Enemy:
-                currentHealth -= 10;
+                currentHealth -= 5;
                 break;
             case DamageType.BoundaryRejection:
                 currentHealth -= maxHealth;
@@ -53,5 +53,14 @@ public class HealthManager : MonoBehaviour
     {
         healthBar.localScale = new Vector3(1.0f, currentHealth * 0.01f, 1.0f);
         healthBar.GetComponent<Image>().color = new Color(1.0f, 0.0f, 0.0f, (100.0f - currentHealth) * 0.01f);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.TryGetComponent(out PelletTracker pellet))
+        {
+            TakeDamage(HealthManager.DamageType.Enemy);
+            other.enabled = false;
+        }
     }
 }

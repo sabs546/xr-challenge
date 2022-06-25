@@ -11,7 +11,7 @@ public class ScoreManager : MonoBehaviour
     public int score { get; private set; }
     public int defuses { get; private set; }
     [SerializeField]
-    private FinishZone finishZone;
+    private FinishZone[] finishZone;
     [SerializeField]
     private GameStateControl gameStateControl;
     [SerializeField]
@@ -24,14 +24,16 @@ public class ScoreManager : MonoBehaviour
     {
         score = 0;
         defuses = 0;
+        pickupGoal = 1;
+        defuseGoal = 1;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (score >= pickupGoal && defuses >= defuseGoal && !finishZone.zoneActive)
+        if (score >= pickupGoal && defuses >= defuseGoal && !finishZone[gameStateControl.currentLevel].zoneActive)
         {
-            finishZone.EnableZone();
+            finishZone[gameStateControl.currentLevel].EnableZone();
         }
     }
 

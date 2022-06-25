@@ -19,6 +19,8 @@ public class TrapController : MonoBehaviour
     private Transform cannonHolder;
     [SerializeField]
     private Controller playerController;
+    [SerializeField]
+    private FireCommand[] cannons;
     private AudioSource source;
 
     // Start is called before the first frame update
@@ -56,6 +58,10 @@ public class TrapController : MonoBehaviour
             else if (cannonHolder.localRotation.y > orientation.localRotation.y && cannonHolder.localRotation.y < originalOrientation.y + rotateLimits.y)
             {
                 cannonHolder.Rotate(Vector3.down, rotateSpeed.y * Time.deltaTime);
+            }
+            for (int i = 0; i < cannons.Length; i++)
+            {
+                cannons[i].SpawnPellet();
             }
         }
     }
