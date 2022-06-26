@@ -53,6 +53,7 @@ public class HealthManager : MonoBehaviour
     public void ResetHealth()
     {
         currentHealth = maxHealth;
+        ModifyHealthBar();
     }
 
     private void OnTriggerEnter(Collider other)

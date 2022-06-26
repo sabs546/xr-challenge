@@ -91,6 +91,7 @@ public class GameStateControl : MonoBehaviour
                 levelComplete.SetActive(false);
                 levelFailed.SetActive(false);
                 player.GetComponent<Controller>().enabled = false;
+                player.GetComponent<Controller>().Halt();
                 spawner[currentLevel].SetActive(true);
                 finishZone[currentLevel].SetActive(true);
 

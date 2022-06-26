@@ -282,6 +282,10 @@ public class Controller : MonoBehaviour
     public void Halt()
     {
         rb.velocity = Vector3.zero;
+        charged = 1;
+        chargeTimer = 0;
+        chargeMultiplier = 1.0f;
+        moving = false;
     }
 
     public void UpgradeCharge()
