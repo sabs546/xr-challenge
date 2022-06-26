@@ -5,7 +5,8 @@ using TMPro;
 
 public class ScoreManager : MonoBehaviour
 {
-    public TextMeshProUGUI GUIText; // Score text
+    public TextMeshProUGUI scoreGUIText; // In game text
+    public TextMeshProUGUI defuseGUIText;
     private int pickupGoal;
     private int defuseGoal;
     public int score { get; private set; }
@@ -52,7 +53,7 @@ public class ScoreManager : MonoBehaviour
             // Score
             score++;
             pickupCounter.text = score.ToString();
-            GUIText.text = score.ToString();
+            scoreGUIText.text = score.ToString() + "/" + pickupGoal;
         }
 
         // Pickup
@@ -61,7 +62,7 @@ public class ScoreManager : MonoBehaviour
             Controller playerController = GetComponent<Controller>();
             if (playerController.charged == 2)
             {
-                tController.transform.Rotate(-playerController.rb.velocity.x * 10.0f, 0.0f, -playerController.rb.velocity.z * 10.0f);
+                tController.transform.Rotate(-playerController.rb.velocity.x * 2.0f, 0.0f, -playerController.rb.velocity.z * 2.0f);
                 tController.GetComponent<AudioSource>().Play();
                 playerController.UpgradeCharge();
                 tController.enabled = false;
@@ -69,6 +70,7 @@ public class ScoreManager : MonoBehaviour
 
                 defuses++;
                 trapCounter.text = defuses.ToString();
+                defuseGUIText.text = defuses.ToString() + "/" + defuseGoal;
             }
         }
     }
@@ -77,16 +79,19 @@ public class ScoreManager : MonoBehaviour
     {
         score = 0;
         defuses = 0;
-        GUIText.text = score.ToString();
+        scoreGUIText.text = score.ToString() + "/" + pickupGoal;
+        defuseGUIText.text = defuses.ToString() + "/" + defuseGoal;
     }
 
     public void SetPickupGoal(int goal)
     {
         pickupGoal = goal;
+        scoreGUIText.text = score.ToString() + "/" + pickupGoal;
     }
 
     public void SetDefuseGoal(int goal)
     {
         defuseGoal = goal;
+        defuseGUIText.text = defuses.ToString() + "/" + defuseGoal;
     }
 }

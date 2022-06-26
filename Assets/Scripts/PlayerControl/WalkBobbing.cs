@@ -36,12 +36,13 @@ public class WalkBobbing : MonoBehaviour
                 if (playerController.Ground == playerController.RockyGround)
                 {
                     source.clip = footStepsRocky[Random.Range(0, footStepsRocky.Length)];
+                    source.Play();
                 }
                 else if (playerController.Ground == playerController.CleanGround)
                 {
                     source.clip = footStepsClean[Random.Range(0, footStepsClean.Length)];
+                    source.Play();
                 }
-                source.Play();
             }
             transform.localPosition = new Vector3(transform.localPosition.x, transform.localPosition.y + currentYBounce, transform.localPosition.z);
             currentYBounce -= playerController.fallSpeed * Time.deltaTime;

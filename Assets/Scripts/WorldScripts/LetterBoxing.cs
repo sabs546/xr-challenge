@@ -5,8 +5,6 @@ using UnityEngine;
 public class LetterBoxing : MonoBehaviour
 {
     [SerializeField]
-    private float boxYSize;
-    [SerializeField]
     private RectTransform letterBoxTop;
     [SerializeField]
     private RectTransform letterBoxBottom;
