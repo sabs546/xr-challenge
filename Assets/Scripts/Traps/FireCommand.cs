@@ -37,11 +37,12 @@ public class FireCommand : MonoBehaviour
 
     public void SpawnPellet()
     {
-        if (!pelletActive)
+        if (!pelletActive && GameStateControl.gameState == GameStateControl.GameState.Playing)
         {
             pelletInstance = Instantiate(pellet, transform);
             timer = pelletLifetime;
             pelletActive = true;
+            pelletInstance.GetComponent<SphereCollider>().enabled = true;
         }
     }
 }

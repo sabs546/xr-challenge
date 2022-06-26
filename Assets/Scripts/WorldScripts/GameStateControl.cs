@@ -32,6 +32,8 @@ public class GameStateControl : MonoBehaviour
     private GameObject[] spawner;
     [SerializeField]
     private GameObject[] finishZone;
+    [SerializeField]
+    private Transform[] restartPos;
 
     private void Awake()
     {
@@ -180,5 +182,12 @@ public class GameStateControl : MonoBehaviour
     public void RestartGame()
     {
         SetGameState(GameState.Menu);
+    }
+
+    public void ResetPlayer()
+    {
+        player.transform.position = restartPos[currentLevel].position;
+        player.transform.rotation = restartPos[currentLevel].rotation;
+        player.GetComponentInChildren<Animator>().SetBool("Dead", false);
     }
 }

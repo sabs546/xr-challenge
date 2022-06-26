@@ -6,7 +6,8 @@ using UnityEngine.UI;
 public class HealthManager : MonoBehaviour
 {
     public enum DamageType { LowFall, HighFall, Enemy, BoundaryRejection };
-    public int maxHealth { get; private set; }
+    [SerializeField]
+    private int maxHealth;
     public int currentHealth { get; private set; }
     [SerializeField]
     private GameStateControl gameStateControl;
@@ -16,7 +17,7 @@ public class HealthManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        currentHealth = 100;
+        currentHealth = maxHealth;
     }
 
     // Update is called once per frame
@@ -26,6 +27,7 @@ public class HealthManager : MonoBehaviour
         {
             currentHealth = 0;
             gameStateControl.SetGameState(GameStateControl.GameState.LevelFailed);
+            GetComponentInChildren<Animator>().SetBool("Dead", true);
         }
     }
 
@@ -53,6 +55,11 @@ public class HealthManager : MonoBehaviour
     {
         healthBar.localScale = new Vector3(1.0f, currentHealth * 0.01f, 1.0f);
         healthBar.GetComponent<Image>().color = new Color(1.0f, 0.0f, 0.0f, (100.0f - currentHealth) * 0.01f);
+    }
+
+    public void ResetHealth()
+    {
+        currentHealth = maxHealth;
     }
 
     private void OnTriggerEnter(Collider other)
