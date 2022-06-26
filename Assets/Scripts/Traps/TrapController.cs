@@ -11,6 +11,7 @@ public class TrapController : MonoBehaviour
     private Quaternion originalOrientation;
     [SerializeField]
     private float triggerRange;
+    private float distance;
     [SerializeField]
     private Transform playerPos;
     [SerializeField]
@@ -37,10 +38,10 @@ public class TrapController : MonoBehaviour
         float yDist = orientation.position.y - playerPos.position.y;
         float zDist = orientation.position.z - playerPos.position.z;
 
-        float dist = (xDist * xDist) + (yDist * yDist) + (zDist * zDist);
-        dist = Mathf.Sqrt(dist);
+        distance = (xDist * xDist) + (yDist * yDist) + (zDist * zDist);
+        distance = Mathf.Sqrt(distance);
 
-        if (dist <= triggerRange)
+        if (distance <= triggerRange)
         {
             orientation.LookAt(playerPos);
             if (cannonHolder.localRotation.x < orientation.localRotation.x && cannonHolder.localRotation.x > originalOrientation.x - rotateLimits.x)
@@ -64,5 +65,10 @@ public class TrapController : MonoBehaviour
                 cannons[i].SpawnPellet();
             }
         }
+    }
+
+    public float GetDistance()
+    {
+        return distance;
     }
 }

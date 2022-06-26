@@ -37,4 +37,19 @@ public class LevelControl : MonoBehaviour
 
         gameStateControl.SetGameState(GameStateControl.GameState.Cutscene);
     }
+
+    public void ReverseLevelSwap()
+    {
+        foreach (GameObject obj in Enable)
+        {
+            obj.SetActive(false);
+        }
+
+        foreach (GameObject obj in Disable)
+        {
+            obj.SetActive(true);
+        }
+
+        gameStateControl.SetGameState(GameStateControl.GameState.Cutscene);
+    }
 }

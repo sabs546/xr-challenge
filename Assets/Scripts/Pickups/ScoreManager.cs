@@ -76,6 +76,7 @@ public class ScoreManager : MonoBehaviour
     public void ResetScore()
     {
         score = 0;
+        defuses = 0;
         GUIText.text = score.ToString();
     }
 

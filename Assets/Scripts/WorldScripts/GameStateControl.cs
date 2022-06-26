@@ -60,6 +60,7 @@ public class GameStateControl : MonoBehaviour
         switch (state) // I know this is a little excessive, but I won't be taking any chances
         {
             case GameState.Menu:
+                currentLevel = 0;
                 gameState = GameState.Menu;
                 mainMenu.SetActive(true);
                 levelDescription[currentLevel].SetActive(false);
@@ -133,6 +134,8 @@ public class GameStateControl : MonoBehaviour
                 levelFailed.SetActive(false);
                 player.GetComponent<Controller>().enabled = false;
                 player.GetComponent<Controller>().Halt();
+                player.GetComponent<ScoreManager>().ResetScore();
+                player.GetComponent<HealthManager>().ResetHealth();
                 spawner[currentLevel].SetActive(false);
                 finishZone[currentLevel].SetActive(false);
 

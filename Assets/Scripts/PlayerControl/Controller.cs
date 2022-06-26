@@ -107,7 +107,6 @@ public class Controller : MonoBehaviour
         else Ground = Air;
 
         PlayerInput();
-        SpeedLimit();
 
         if (Ground != Air) rb.drag = groundDrag;
         else rb.drag = 0.0f;
@@ -246,6 +245,10 @@ public class Controller : MonoBehaviour
         else
         {
             rb.AddForce(moveDirection.normalized * (Ground != Air ? currentSpeedLimit : airSpeedLimit), ForceMode.Force);
+            if (charged == 2)
+            {
+                rb.AddForce(moveDirection.normalized * currentSpeedLimit, ForceMode.Acceleration);
+            }
         }
 
         rb.AddForce(0.0f, -gravity * Time.deltaTime, 0.0f, ForceMode.Force);
@@ -276,17 +279,6 @@ public class Controller : MonoBehaviour
         }
     }
 
-    private void SpeedLimit()
-    {
-        Vector3 flatVelocity = new Vector3(rb.velocity.x, 0.0f, rb.velocity.z);
-
-        if (flatVelocity.magnitude > currentSpeedLimit)
-        {
-            Vector3 limitedVelocity = flatVelocity.normalized * currentSpeedLimit;
-            rb.velocity = new Vector3(limitedVelocity.x, rb.velocity.y, limitedVelocity.z);
-        }
-    }
-
     public void Halt()
     {
         rb.velocity = Vector3.zero;
@@ -295,5 +287,10 @@ public class Controller : MonoBehaviour
     public void UpgradeCharge()
     {
         chargeMultiplier *= 1.5f;
+    }
+
+    public void UpgradeSpeedLimit()
+    {
+        chargedSpeedLimit *= 1.5f;
     }
 }

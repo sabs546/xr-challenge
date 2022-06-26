@@ -39,6 +39,7 @@ public class FinishZone : MonoBehaviour
 
     public void EnableZone()
     {
+        meshRenderer = GetComponent<MeshRenderer>();
         meshRenderer.material = green;
         redSmoke.SetActive(false);
         greenSmoke.SetActive(true);
